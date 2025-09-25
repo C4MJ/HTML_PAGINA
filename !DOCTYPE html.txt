@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GRC Agent - Análise de Frameworks</title>
+    <title>GRC Agent - SIlvIAs</title>
     <style>
         * {
             margin: 0;
@@ -242,7 +242,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🛡️ GRC Agent</h1>
+            <h1>🛡️ GRC Agent - SIlvIA</h1>
             <p>Análise Inteligente de Frameworks de Segurança</p>
         </div>
 
@@ -426,4 +426,5 @@
         }
     </script>
 </body>
+
 </html>
