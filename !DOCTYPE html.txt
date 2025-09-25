@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GRC Agent - SIlvIAs</title>
+    <title>GRC Agent - Análise de Frameworks</title>
     <style>
         * {
             margin: 0;
@@ -46,6 +46,15 @@
 
         .main-content {
             padding: 40px;
+        }
+
+        .config-warning {
+            background: #f39c12;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
         .form-grid {
@@ -242,11 +251,16 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🛡️ GRC Agent - SIlvIA</h1>
+            <h1>🛡️ GRC Agent</h1>
             <p>Análise Inteligente de Frameworks de Segurança</p>
         </div>
 
         <div class="main-content">
+            <!-- Configuração ativa -->
+            <div style="background: #27ae60; color: white; padding: 15px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
+                ✅ <strong>SISTEMA CONFIGURADO E PRONTO PARA USO</strong>
+            </div>
+
             <form id="grcForm">
                 <div class="form-group full-width">
                     <label>Selecione a Funcionalidade:</label>
@@ -264,7 +278,7 @@
                             <p>Mapeia vulnerabilidades técnicas</p>
                         </div>
                         <div class="functionality-card" data-func="D">
-                            <h3>📝 Revisão de Política</h3>
+                            <h3>📖 Revisão de Política</h3>
                             <p>Revisa políticas existentes</p>
                         </div>
                         <div class="functionality-card" data-func="E">
@@ -290,7 +304,8 @@
 
                     <div class="form-group">
                         <label for="controle">Controle:</label>
-                        <input type="text" id="controle" placeholder="Ex: A.5.1, ID.AM-1" required>
+                        <input type="text" id="controle" placeholder="Ex: A.5.1, ID.AM-1, TODOS" required>
+                        <small style="color: #666; margin-top: 4px;">Digite "TODOS" para todos os controles do framework</small>
                     </div>
                 </div>
 
@@ -327,8 +342,8 @@
     </div>
 
     <script>
-        // Configuração da Logic App - SUBSTITUA PELA SUA URL
-        const LOGIC_APP_URL = 'https://prod-xx.eastus.logic.azure.com:443/workflows/.../triggers/manual/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=xxx';
+        // URL do Logic App configurada
+        const LOGIC_APP_URL = 'https://prod-54.eastus.logic.azure.com:443/workflows/ec5a9a7b95fa4c46962901069af372a8/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YlRDzSyrRjlf81yqalIUFfiROvRjogvaBWMo_O5m81k';
 
         let selectedFunctionality = '';
         let lastResult = null;
@@ -356,6 +371,12 @@
         document.getElementById('grcForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Validar se URL foi configurada
+            if (LOGIC_APP_URL === 'COLE_AQUI_A_URL_DO_SEU_LOGIC_APP') {
+                alert('⚠️ Erro: Configure a URL do Logic App no código JavaScript antes de usar!');
+                return;
+            }
+            
             if (!selectedFunctionality) {
                 alert('Por favor, selecione uma funcionalidade.');
                 return;
@@ -380,6 +401,8 @@
             document.querySelector('.submit-btn').disabled = true;
 
             try {
+                console.log('Enviando dados:', formData);
+
                 const response = await fetch(LOGIC_APP_URL, {
                     method: 'POST',
                     headers: {
@@ -389,19 +412,24 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
+                    throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
                 }
 
                 const result = await response.json();
+                console.log('Resposta recebida:', result);
                 lastResult = result;
                 
-                // Mostrar resultado
+                // Mostrar resultado formatado
                 document.getElementById('resultJson').textContent = JSON.stringify(result, null, 2);
                 document.getElementById('results').style.display = 'block';
                 
             } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('error').textContent = `Erro na análise: ${error.message}`;
+                console.error('Erro completo:', error);
+                document.getElementById('error').innerHTML = `
+                    <strong>Erro na análise:</strong><br>
+                    ${error.message}<br>
+                    <small>Verifique o console do navegador (F12) para mais detalhes.</small>
+                `;
                 document.getElementById('error').style.display = 'block';
             } finally {
                 // Ocultar loading
@@ -414,17 +442,24 @@
         function downloadResult() {
             if (!lastResult) return;
             
+            const filename = `grc-analysis-${selectedFunctionality}-${new Date().toISOString().slice(0,19).replace(/[:.]/g, '-')}.json`;
             const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `grc-analysis-${selectedFunctionality}-${Date.now()}.json`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
+
+        // Verificar configuração na inicialização
+        window.addEventListener('load', function() {
+            if (LOGIC_APP_URL === 'COLE_AQUI_A_URL_DO_SEU_LOGIC_APP') {
+                console.warn('⚠️ ATENÇÃO: Configure a URL do Logic App antes de usar!');
+            }
+        });
     </script>
 </body>
-
 </html>
